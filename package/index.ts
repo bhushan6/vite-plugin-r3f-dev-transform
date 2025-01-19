@@ -111,7 +111,7 @@ export default function r3fTransformPlugin(): PluginOption {
                 const onSaved = () => {
                  console.log('Plugin: Saved transform into transform-data.json');
                 }
-                import.meta.hot.on('r3f-transform-saved', onSaved)
+                import.meta.hot.on('r3f-transform-saved!!!!!!!!!!!!', onSaved)
                 
                 return () => {
                   import.meta.hot.off('r3f-transform-saved', onSaved);
@@ -119,33 +119,6 @@ export default function r3fTransformPlugin(): PluginOption {
               }
             })
            
-
-             
-
-            // useEffect(() => {
-
-
-            //     const saveButton = document.createElement('button');
-            //     saveButton.textContent = 'Save';
-                
-
-            //     container.current.appendChild(saveButton);
-
-            //    function handleSave() {
-            //         if (import.meta.hot) {
-            //             import.meta.hot.send('r3f-transform-save', transforms);
-            //         }
-            //     }
-
-                
-
-            //     saveButton.addEventListener('click', handleSave);
-
-            //     return () => {
-            //       saveButton.removeEventListener('click', handleSave);
-            //       saveButton.remove();
-            //     }
-            // }, [transforms]);
             
             function handleClick(e) {
               e.stopPropagation();
@@ -182,7 +155,7 @@ export default function r3fTransformPlugin(): PluginOption {
 
             const visitedMeshes = []
              const traverse = (node) => {
-                
+                console.log(node.props, node.type);
                 if (Array.isArray(node)) {
                 return node.map((child) => traverse(child));
                 } else if (React.isValidElement(node)) {
@@ -191,8 +164,10 @@ export default function r3fTransformPlugin(): PluginOption {
                     const element = node.type(node.props);
                     const children = element.props.children;
                     return children ? traverse(children) : null;
-                } 
+                }
+                
                 if(node.type === 'mesh'){
+                    console.log("mesh", node.props.name);
                     const position = node.props.name ? transforms[node.props.name]?.position : null;
                     const rotation = node.props.name ? transforms[node.props.name]?.rotation : null;
                     const scale = node.props.name ? transforms[node.props.name]?.scale : null;
@@ -213,6 +188,12 @@ export default function r3fTransformPlugin(): PluginOption {
                     ...newProps,
                     })
                 }else{
+                    if(node.props.children){
+                      const processedChildren = traverse(node.props.children)
+                      return React.cloneElement(node, {
+                        children: processedChildren
+                      })
+                    }
                     return node
                 }
                 } else {
